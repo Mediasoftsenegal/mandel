@@ -44,9 +44,9 @@
           <tr class="groupe-annee"><th colspan="7"><i class="fa-regular fa-calendar"></i> Année {{ f.annee }}</th></tr>
           {% endifchanged %}
           {% ifchanged f.cle_mois %}
-          <tr class="groupe-mois"><th colspan="7"><i class="fa-regular fa-calendar-days"></i> {{ f.mois }}</th></tr>
+          <tr class="groupe-mois" data-cle="{{ f.cle }}" role="button" tabindex="0" aria-expanded="true"><th colspan="7"><i class="fa-solid fa-chevron-down chevron-mois"></i> <i class="fa-regular fa-calendar-days"></i> {{ f.mois }}</th></tr>
           {% endifchanged %}
-          <tr>
+          <tr data-groupe="{{ f.cle }}">
             <td>{{ f.echeance|date:"d/m/Y" }}{% if f.en_retard %} <span class="badge-due">en retard</span>{% endif %}</td>
             <td><a class="lien-table" href="{% url 'couture:facture_detail' f.numero %}">{{ f.numero }}</a></td>
             <td>{% if f.client %}<a class="lien-table" href="{% url 'couture:client_detail' f.client.pk %}">{{ f.client.prenom_nom }}</a>{% else %}—{% endif %}</td>
@@ -63,4 +63,28 @@
     </div>
     {% include "couture/_pagination.html" %}
   </div>
+{% endblock %}
+{% block scripts %}
+<script>
+  (function () {
+    function basculer(entete) {
+      var nouvel = entete.getAttribute('aria-expanded') === 'false';
+      entete.setAttribute('aria-expanded', nouvel ? 'true' : 'false');
+      var cle = entete.getAttribute('data-cle');
+      document.querySelectorAll('tr[data-groupe="' + cle + '"]').forEach(function (tr) {
+        tr.style.display = nouvel ? '' : 'none';
+      });
+      var chevron = entete.querySelector('.chevron-mois');
+      if (chevron) {
+        chevron.className = nouvel ? 'fa-solid fa-chevron-down chevron-mois' : 'fa-solid fa-chevron-right chevron-mois';
+      }
+    }
+    document.querySelectorAll('tr.groupe-mois').forEach(function (entete) {
+      entete.addEventListener('click', function () { basculer(entete); });
+      entete.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); basculer(entete); }
+      });
+    });
+  })();
+</script>
 {% endblock %}

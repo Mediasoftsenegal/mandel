@@ -699,6 +699,7 @@ def facture_suivi(request):
         g['annee'] = reference.year
         g['mois'] = f"{MOIS[reference.month - 1].capitalize()} {reference.year}"
         g['cle_mois'] = (reference.year, reference.month)
+        g['cle'] = f"{reference.year}-{reference.month:02d}"
     annees = sorted({g['annee'] for g in groupes}, reverse=True)
     # Par défaut : année en cours ; « toutes » affiche toutes les années groupées.
     annee = request.GET.get('annee', str(aujourdhui.year))
