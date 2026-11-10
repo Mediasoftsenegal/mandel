@@ -1,0 +1,90 @@
+{% load static %}<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Mandel{% endblock %} · Mandel</title>
+  <link rel="stylesheet" href="{% static 'css/mandel.css' %}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+  <header class="topbar">
+    <button class="menu-toggle" aria-label="Menu" onclick="document.querySelector('.sidebar').classList.toggle('open')">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+    <span class="brand">MANDEL</span>
+    <span class="user">
+      <i class="fa-regular fa-user"></i> {{ request.user.username|default:"Utilisateur" }}
+      <form method="post" action="{% url 'couture:deconnexion' %}" style="display:inline; margin-left:12px;">
+        {% csrf_token %}
+        <button type="submit" class="deconnexion"><i class="fa-solid fa-right-from-bracket"></i> Déconnexion</button>
+      </form>
+    </span>
+  </header>
+
+  <aside class="sidebar">
+    <div class="logo"><span class="logo-rond"><img src="{% static 'img/logo_couture.png' %}" alt=""></span><span>Mandel Couture</span></div>
+    <nav>
+      {% if 'dashboard' in modules_autorises %}
+      <a href="{% url 'couture:dashboard' %}" class="{% if page == 'dashboard' %}active{% endif %}"><i class="fa-solid fa-gauge"></i> Tableau de bord</a>
+      {% endif %}
+      {% if 'clients' in modules_autorises %}
+      <a href="{% url 'couture:client_liste' %}" class="{% if page == 'clients' %}active{% endif %}"><i class="fa-solid fa-users"></i> Clients</a>
+      {% endif %}
+      {% if 'mesures' in modules_autorises %}
+      <a href="{% url 'couture:mesure_liste' %}" class="{% if page == 'mesures' %}active{% endif %}"><i class="fa-solid fa-ruler"></i> Mesures</a>
+      {% endif %}
+      {% if 'articles' in modules_autorises %}
+      <a href="{% url 'couture:article_liste' %}" class="{% if page == 'articles' %}active{% endif %}"><i class="fa-solid fa-tag"></i> Articles</a>
+      {% endif %}
+      {% if 'articles' in modules_autorises %}
+      <a href="{% url 'couture:modele_liste' %}" class="{% if page == 'modeles' %}active{% endif %}"><i class="fa-solid fa-scissors"></i> Modèles</a>
+      {% endif %}
+      {% if 'factures' in modules_autorises or 'caisse' in modules_autorises or 'comptabilite' in modules_autorises %}
+      <div class="section">Facturation</div>
+      {% if 'factures' in modules_autorises %}
+      <a href="{% url 'couture:facture_liste' %}" class="sub" class="{% if page == 'factures' %}active{% endif %}"><i class="fa-solid fa-file-invoice"></i> Factures</a>
+      {% endif %}
+      {% if 'caisse' in modules_autorises %}
+      <a href="{% url 'couture:caisse' %}" class="sub" class="{% if page == 'caisse' %}active{% endif %}"><i class="fa-solid fa-cash-register"></i> Acomptes</a>
+      {% endif %}
+      {% if 'factures' in modules_autorises %}
+      <a href="{% url 'couture:facture_suivi' %}" class="sub" class="{% if page == 'factures_suivi' %}active{% endif %}"><i class="fa-solid fa-list-check"></i> État de suivi</a>
+      {% endif %}
+      {% if 'comptabilite' in modules_autorises %}
+      <a href="{% url 'couture:comptabilite' %}" class="sub" class="{% if page == 'comptabilite' %}active{% endif %}"><i class="fa-solid fa-chart-line"></i> Indicateur</a>
+      {% endif %}
+      {% endif %}
+      {% if 'caisse' in modules_autorises %}
+      <div class="section">Caisse</div>
+      <a href="{% url 'couture:caisse_jour' %}" class="sub {% if page == 'caisse_jour' %}active{% endif %}"><i class="fa-solid fa-cash-register"></i> Caisse du jour</a>
+      <a href="{% url 'couture:livre_caisse' %}" class="sub {% if page == 'livre_caisse' %}active{% endif %}"><i class="fa-solid fa-book"></i> Livre de caisse</a>
+      {% endif %}
+      {% if 'marquage' in modules_autorises %}
+      <div class="section">Marquage</div>
+      <a href="{% url 'couture:marquage_section' 'tailleur' %}" class="sub {% if section == 'tailleur' %}active{% endif %}"><i class="fa-solid fa-user-pen"></i> Tailleur</a>
+      <a href="{% url 'couture:marquage_section' 'tarif' %}" class="sub {% if section == 'tarif' %}active{% endif %}"><i class="fa-solid fa-tags"></i> Tarif</a>
+      <a href="{% url 'couture:marquage_section' 'marquage' %}" class="sub {% if section == 'marquage' %}active{% endif %}"><i class="fa-solid fa-scissors"></i> Marquage</a>
+      <a href="{% url 'couture:marquage_section' 'honoraires' %}" class="sub {% if section == 'honoraires' %}active{% endif %}"><i class="fa-solid fa-coins"></i> Honoraires</a>
+      {% endif %}
+      {% if 'parametres' in modules_autorises %}
+      <div class="section">Paramètres</div>
+      {% if 'parametres' in modules_autorises %}
+      <a href="{% url 'couture:profils_liste' %}" class="sub" class="{% if page == 'parametres' and onglet == 'profils' %}active{% endif %}"><i class="fa-solid fa-id-badge"></i> Profil</a>
+      {% endif %}
+      {% if 'parametres' in modules_autorises %}
+      <a href="{% url 'couture:utilisateurs_liste' %}" class="sub" class="{% if page == 'parametres' and onglet == 'utilisateurs' %}active{% endif %}"><i class="fa-solid fa-users-gear"></i> Utilisateurs</a>
+      {% endif %}
+      {% endif %}
+    </nav>
+  </aside>
+
+  <main class="content">
+    {% for m in messages %}
+      <div class="card alerte alerte-{{ m.tags }}">{{ m }}</div>
+    {% endfor %}
+    {% block content %}{% endblock %}
+  </main>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

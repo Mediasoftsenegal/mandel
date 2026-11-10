@@ -1,0 +1,17 @@
+{% extends "couture/base.html" %}
+{% block title %}{{ section_titre }}{% endblock %}
+{% block content %}
+  <h1 class="page-title">Marquage · {{ section_titre }}</h1>
+  <div class="breadcrumb">Accueil · Marquage · {{ section_titre }}</div>
+
+  <div class="actions">
+    {% for cle, libelle in sections.items %}
+      <a class="btn {% if section == cle %}btn-validate{% else %}btn-dash{% endif %}" href="{% url 'couture:marquage_section' cle %}">{{ libelle }}</a>
+    {% endfor %}
+  </div>
+
+  <div class="card">
+    <h2>Module en cours de migration</h2>
+    <p>Cette partie du suivi de fabrication n'est pas encore portée vers Django. Elle reste disponible dans l'application actuelle en attendant.</p>
+  </div>
+{% endblock %}

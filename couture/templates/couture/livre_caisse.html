@@ -1,0 +1,87 @@
+{% extends "couture/base.html" %}
+{% load humanize %}
+{% block title %}Livre de caisse{% endblock %}
+{% block content %}
+  {% include "couture/_entete.html" with titre="Livre de caisse" fil="Accueil · Caisse · Livre de caisse" %}
+
+  <form method="get" class="card">
+    <div class="filtres-4">
+      <label>Date
+        <input type="date" name="jour" value="{{ jour|date:'Y-m-d' }}">
+      </label>
+      <div></div>
+      <div></div>
+      <div class="filtre-actions">
+        <button class="btn-primaire" type="submit"><i class="fa-solid fa-calendar-day"></i> Afficher</button>
+      </div>
+    </div>
+  </form>
+
+  <div class="deux-colonnes">
+    <div class="card">
+      <div class="fiche-entete"><span><i class="fa-solid fa-arrow-down" style="color:#1b7f3b"></i> Entrées — factures encaissées</span></div>
+      <div class="table-wrap">
+        <table class="data">
+          <thead><tr><th>N° facture</th><th>Client</th><th class="num">Montant encaissé</th></tr></thead>
+          <tbody>
+            {% for e in entrees %}
+            <tr>
+              <td><a class="lien-table" href="{% url 'couture:facture_detail' e.numero_facture %}">{{ e.numero_facture }}</a></td>
+              <td>{% if e.client %}{{ e.client.prenom_nom }}{% else %}—{% endif %}</td>
+              <td class="num">{{ e.montpaye|intcomma }} F</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="3">Aucune entrée pour cette date.</td></tr>
+            {% endfor %}
+          </tbody>
+          <tfoot><tr><th colspan="2">Total entrées</th><th class="num">{{ total_entrees|intcomma }} F</th></tr></tfoot>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="fiche-entete"><span><i class="fa-solid fa-arrow-up" style="color:#c62828"></i> Sorties — dépenses</span></div>
+      <form method="post" action="{% url 'couture:depense_ajouter' %}" class="filtres-4" style="margin-bottom:14px;">
+        {% csrf_token %}
+        <input type="hidden" name="jour" value="{{ jour|date:'Y-m-d' }}">
+        <label>Bénéficiaire<input type="text" name="nom" required placeholder="Nom"></label>
+        <label>Objet<input type="text" name="objet" required placeholder="Motif"></label>
+        <label>Montant<input type="number" name="montant" min="1" step="1" required></label>
+        <div class="filtre-actions"><button class="btn-primaire" type="submit"><i class="fa-solid fa-plus"></i> Ajouter</button></div>
+      </form>
+      <div class="table-wrap">
+        <table class="data">
+          <thead><tr><th>Bénéficiaire</th><th>Objet</th><th class="num">Montant</th><th></th></tr></thead>
+          <tbody>
+            {% for s in sorties %}
+            <tr>
+              <td>{{ s.nom }}</td>
+              <td>{{ s.objet }}</td>
+              <td class="num">{{ s.montant|intcomma }} F</td>
+              <td>
+                <form method="post" action="{% url 'couture:depense_supprimer' s.pk %}" style="margin:0;" onsubmit="return confirm('Supprimer cette dépense ?');">
+                  {% csrf_token %}
+                  <button type="submit" title="Supprimer" style="background:none;border:0;cursor:pointer;color:#c62828;"><i class="fa-solid fa-trash"></i></button>
+                </form>
+              </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4">Aucune sortie pour cette date.</td></tr>
+            {% endfor %}
+          </tbody>
+          <tfoot><tr><th colspan="2">Total sorties</th><th class="num">{{ total_sorties|intcomma }} F</th><th></th></tr></tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <table class="data">
+      <tbody>
+        <tr><th>Total des entrées</th><td class="num">{{ total_entrees|intcomma }} F</td></tr>
+        <tr><th>Total des sorties</th><td class="num">{{ total_sorties|intcomma }} F</td></tr>
+        <tr><th><strong>Total caisse (entrées − sorties)</strong></th><td class="num"><strong>{{ total_caisse|intcomma }} F</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+{% endblock %}

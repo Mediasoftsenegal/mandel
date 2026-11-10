@@ -1,0 +1,65 @@
+{% extends "couture/base.html" %}
+{% load static %}
+{% block title %}{{ titre }}{% endblock %}
+{% block content %}
+  {% url 'couture:modele_liste' as retour %}
+  {% include "couture/_entete.html" with titre=titre fil="Accueil · Modèles · Fiche modèle" %}
+
+  <div class="fiche-layout">
+    <div>
+      <form method="post">
+        {% csrf_token %}
+        <div class="fiche">
+          <div class="fiche-entete"><span>1. Modèle</span></div>
+          <div class="fiche-corps">
+            {% include "couture/_champs.html" %}
+            {% if modele %}
+            <div class="champ-ligne">
+              <div class="libelle">Score (choix des clients)</div>
+              <div class="lecture"><strong>{{ score }}</strong> <span class="aide">Incrémenté de +1 à chaque article de ce modèle ajouté à une facture.</span></div>
+            </div>
+            <div class="champ-ligne">
+              <div class="libelle">Photos</div>
+              <div class="lecture"><a class="lien-table" href="{% url 'couture:modele_galerie' modele.pk %}"><i class="fa-solid fa-images"></i> Gérer les 5 photos et voter</a></div>
+            </div>
+            {% endif %}
+          </div>
+          <div class="fiche-pied">
+            <button class="btn-primaire" type="submit"><i class="fa-solid fa-check"></i> Enregistrer</button>
+            <a class="btn-secondaire" href="{{ retour }}"><i class="fa-solid fa-xmark"></i> Annuler</a>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    {% if modele %}
+    <aside class="volet" aria-label="Aperçu des photos">
+      <div class="volet-entete">Aperçu des photos</div>
+      <div class="volet-grand">
+        {% if apercu.0.photo %}
+          <img id="photo-grande" src="{{ apercu.0.photo.image.url }}" alt="Photo 1">
+        {% else %}
+          <div class="vide" id="photo-grande-vide">Aucune photo</div>
+        {% endif %}
+      </div>
+      <div class="volet-miniatures">
+        {% for e in apercu %}
+          {% if e.photo %}
+          <button type="button" class="miniature {% if forloop.first %}active{% endif %}" data-src="{{ e.photo.image.url }}" title="Photo {{ e.position }}">
+            <img src="{{ e.photo.image.url }}" alt="Photo {{ e.position }}">
+            <span>{{ e.position }}</span>
+          </button>
+          {% else %}
+          <div class="miniature vide-mini"><span>{{ e.position }}</span></div>
+          {% endif %}
+        {% endfor %}
+      </div>
+      <div class="aide volet-note">Consultation seule : n'affecte pas le score.</div>
+    </aside>
+    {% endif %}
+  </div>
+
+  {% if modele %}
+  <script src="{% static 'js/volet_photos.js' %}"></script>
+  {% endif %}
+{% endblock %}

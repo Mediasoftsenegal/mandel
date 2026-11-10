@@ -1,0 +1,24 @@
+{% extends "couture/base.html" %}
+{% block title %}{{ titre }}{% endblock %}
+{% block content %}
+  {% if client %}
+    {% url 'couture:client_detail' client.pk as retour %}
+  {% else %}
+    {% url 'couture:client_liste' as retour %}
+  {% endif %}
+  {% include "couture/_entete.html" with titre=titre fil="Accueil · Clients · Fiche client" %}
+
+  <form method="post">
+    {% csrf_token %}
+    <div class="fiche">
+      <div class="fiche-entete"><span>1. Informations client</span></div>
+      <div class="fiche-corps">
+        {% include "couture/_champs.html" %}
+      </div>
+      <div class="fiche-pied">
+        <button class="btn-primaire" type="submit"><i class="fa-solid fa-check"></i> Enregistrer</button>
+        <a class="btn-secondaire" href="{{ retour }}"><i class="fa-solid fa-xmark"></i> Annuler</a>
+      </div>
+    </div>
+  </form>
+{% endblock %}

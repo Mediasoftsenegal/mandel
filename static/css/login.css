@@ -1,0 +1,69 @@
+/* Page de connexion — fond et couleurs Mandel */
+:root {
+  --navbar: #00ACC1;
+  --sidebar: #28373E;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body {
+  font-family: "Segoe UI", Roboto, Arial, sans-serif;
+  color: #fff;
+  background: #1b2328 url('../img/fonds.jpg') center / cover no-repeat fixed;
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px 16px;
+}
+body::before {  /* voile sombre pour la lisibilité */
+  content: ""; position: fixed; inset: 0; background: rgba(20, 28, 33, .55); z-index: 0;
+}
+
+.login-wrap {
+  position: relative; z-index: 1; width: 100%; max-width: 880px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+  background: rgba(40, 55, 62, .55); border-radius: 12px; overflow: hidden;
+  box-shadow: 0 12px 40px rgba(0,0,0,.4); backdrop-filter: blur(4px);
+}
+
+/* Panneau modules (remplace le slider) */
+.modules {
+  padding: 36px 32px; background: rgba(20, 28, 33, .35);
+  display: flex; flex-direction: column; justify-content: center;
+}
+.modules h2 { margin: 0 0 6px; font-size: 20px; }
+.modules p.sous { margin: 0 0 18px; opacity: .85; font-size: 14px; }
+.modules ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.modules li {
+  display: flex; align-items: center; gap: 12px;
+  background: rgba(255,255,255,.08); border-left: 3px solid var(--navbar);
+  padding: 10px 12px; border-radius: 6px; font-size: 14px;
+}
+.modules li i { width: 22px; text-align: center; color: var(--navbar); }
+
+/* Carte de connexion */
+.connexion { padding: 36px 32px; background: rgba(255,255,255,.06); }
+.connexion .logo { display: block; height: 64px; margin: 0 auto 12px; }
+.connexion h1 { margin: 0 0 4px; text-align: center; font-size: 22px; font-weight: 600; }
+.connexion .sous { margin: 0 0 24px; text-align: center; font-size: 13px; opacity: .8; }
+
+.champ { margin-bottom: 16px; }
+.champ label { display: block; font-size: 13px; margin-bottom: 6px; opacity: .9; }
+.champ input {
+  width: 100%; padding: 11px 12px; border: 1px solid rgba(255,255,255,.25); border-radius: 6px;
+  background: rgba(255,255,255,.95); color: #222; font-size: 15px;
+}
+.champ input:focus { outline: 2px solid var(--navbar); border-color: var(--navbar); }
+
+.erreur {
+  background: rgba(198, 40, 40, .85); border-radius: 6px; padding: 10px 12px;
+  font-size: 14px; margin-bottom: 16px;
+}
+
+.btn-connexion {
+  width: 100%; padding: 12px; border: 0; border-radius: 6px; cursor: pointer;
+  background: var(--navbar); color: #fff; font-size: 15px; font-weight: 600; letter-spacing: .5px;
+}
+.btn-connexion:hover { filter: brightness(.93); }
+
+@media (max-width: 720px) {
+  .login-wrap { grid-template-columns: 1fr; }
+  .modules { display: none; }
+}

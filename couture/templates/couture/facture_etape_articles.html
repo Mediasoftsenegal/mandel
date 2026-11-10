@@ -1,0 +1,60 @@
+{% extends "couture/base.html" %}
+{% load humanize %}
+{% block title %}Nouvelle facture · Articles{% endblock %}
+{% block content %}
+  {% url 'couture:facture_panier' as bouton_url %}
+  {% include "couture/_entete.html" with titre="Choisir les articles" fil="Accueil · Facturation · Nouvelle facture · Articles" bouton_url=bouton_url bouton_libelle="Voir le panier" bouton_icone="fa-cart-shopping" %}
+  {% include "couture/_etapes.html" %}
+
+  <div class="card">
+    <strong>Client :</strong> {{ client.prenom_nom }} · {{ client.telephone|default:"" }}
+    <span class="aide"> — {{ nb_articles }} article(s) dans le panier</span>
+  </div>
+
+  <form method="get" class="card">
+    <div class="filtres-4">
+      <label>Désignation
+        <input type="search" name="q" value="{{ q }}" placeholder="Ex. boubou">
+      </label>
+      <div></div>
+      <div></div>
+      <div class="filtre-actions">
+        <button class="btn-primaire" type="submit"><i class="fa-solid fa-magnifying-glass"></i> Filtrer</button>
+        <a class="btn-secondaire" href="{% url 'couture:facture_articles' %}"><i class="fa-solid fa-rotate-left"></i> Réinitialiser</a>
+      </div>
+    </div>
+  </form>
+
+  <div class="card">
+    <div class="table-wrap">
+      <table class="data">
+        <thead><tr><th>Désignation</th><th>Modèle</th><th>Catégorie</th><th class="num">Prix</th><th class="num">Dans le panier</th><th></th></tr></thead>
+        <tbody>
+          {% for p in page_obj %}
+          <tr>
+            <td>{{ p.des }}</td>
+            <td>{{ p.modele.libmod|default:"—" }}</td>
+            <td>{{ p.catp }}</td>
+            <td class="num">{{ p.pu|intcomma }}</td>
+            <td class="num">{{ p.dans_panier }}</td>
+            <td>
+              <form method="post" action="{% url 'couture:facture_ajouter' p.pk %}" style="margin:0;">
+                {% csrf_token %}
+                <button class="btn-primaire" type="submit"><i class="fa-solid fa-plus"></i> Ajouter</button>
+              </form>
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="6">Aucun article trouvé.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% include "couture/_pagination.html" %}
+  </div>
+
+  <div class="actions">
+    <a class="btn-secondaire" href="{% url 'couture:facture_creer' %}"><i class="fa-solid fa-arrow-left"></i> Changer de client</a>
+    <a class="btn-primaire" href="{% url 'couture:facture_panier' %}"><i class="fa-solid fa-cart-shopping"></i> Voir le panier</a>
+  </div>
+{% endblock %}

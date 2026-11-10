@@ -1,0 +1,52 @@
+{% load static %}<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Connexion · Mandel Couture</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="{% static 'css/login.css' %}">
+</head>
+<body>
+  <div class="login-wrap">
+
+    <section class="modules" aria-label="Modules de l'application">
+      <h2>Mandel Couture</h2>
+      <p class="sous">Gestion de l'atelier, de la clientèle et de la facturation.</p>
+      <ul>
+        <li><i class="fa-solid fa-users"></i> Clients et mesures</li>
+        <li><i class="fa-solid fa-tag"></i> Articles et modèles</li>
+        <li><i class="fa-solid fa-file-invoice"></i> Factures et encaissements</li>
+        <li><i class="fa-solid fa-cash-register"></i> Caisse</li>
+        <li><i class="fa-solid fa-chart-line"></i> Comptabilité</li>
+        <li><i class="fa-solid fa-scissors"></i> Marquage (broderie, couture, boutons)</li>
+      </ul>
+    </section>
+
+    <section class="connexion">
+      <img class="logo" src="{% static 'img/logo.png' %}" alt="Mandel">
+      <h1>Bienvenue !</h1>
+      <p class="sous">Connectez-vous pour continuer</p>
+
+      {% if form.non_field_errors %}
+        <div class="erreur">{{ form.non_field_errors|join:" " }}</div>
+      {% endif %}
+
+      <form method="post" action="{% url 'couture:connexion' %}">
+        {% csrf_token %}
+        {% if suivant %}<input type="hidden" name="suivant" value="{{ suivant }}">{% endif %}
+        <div class="champ">
+          <label for="{{ form.login.id_for_label }}">{{ form.login.label }}</label>
+          {{ form.login }}
+        </div>
+        <div class="champ">
+          <label for="{{ form.password.id_for_label }}">{{ form.password.label }}</label>
+          {{ form.password }}
+        </div>
+        <button class="btn-connexion" type="submit">Connexion</button>
+      </form>
+    </section>
+
+  </div>
+</body>
+</html>

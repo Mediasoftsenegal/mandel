@@ -1,0 +1,177 @@
+{% extends "couture/base.html" %}
+{% load humanize %}
+{% block title %}Tableau de bord{% endblock %}
+{% block content %}
+  <div class="entete-dashboard">
+    <div>
+      <h1 class="page-title">Tableau de bord</h1>
+      <div class="breadcrumb">Période : {{ libelle_periode }}</div>
+    </div>
+    <form method="get" class="periode">
+      <label for="periode">Période</label>
+      <select id="periode" name="periode" onchange="this.form.submit()">
+        {% for cle, libelle in periodes %}
+          <option value="{{ cle }}" {% if cle == periode %}selected{% endif %}>{{ libelle }}</option>
+        {% endfor %}
+      </select>
+    </form>
+  </div>
+
+  <h2 class="titre-section">Activité de la période</h2>
+  <div class="stats">
+    <div class="stat">
+      <div class="icon orange"><i class="fa-solid fa-file-invoice"></i></div>
+      <div><div class="value orange-texte">{{ nb_factures|intcomma }}</div><div class="label">Factures créées</div></div>
+    </div>
+    <div class="stat">
+      <div class="icon"><i class="fa-solid fa-sack-dollar"></i></div>
+      <div><div class="value">{{ total_facture|intcomma }} F</div><div class="label">Total facturé</div></div>
+    </div>
+    <div class="stat">
+      <div class="icon alt"><i class="fa-solid fa-circle-check"></i></div>
+      <div><div class="value">{{ total_paye|intcomma }} F</div><div class="label">Encaissé</div></div>
+    </div>
+    <div class="stat">
+      <div class="icon alt"><i class="fa-solid fa-percent"></i></div>
+      <div><div class="value">{{ taux_encaissement }} %</div><div class="label">Taux d'encaissement</div></div>
+    </div>
+    <div class="stat">
+      <div class="icon"><i class="fa-solid fa-basket-shopping"></i></div>
+      <div><div class="value">{{ panier_moyen|intcomma }} F</div><div class="label">Panier moyen</div></div>
+    </div>
+  </div>
+
+  <h2 class="titre-section">Situation à ce jour</h2>
+  <div class="stats">
+    <div class="stat">
+      <div class="icon alt"><i class="fa-solid fa-scale-balanced"></i></div>
+      <div><div class="value">{{ reste_global|intcomma }} F</div><div class="label">Reste à encaisser</div></div>
+    </div>
+    <div class="stat">
+      <div class="icon danger"><i class="fa-solid fa-triangle-exclamation"></i></div>
+      <div><div class="value">{{ nb_retard|intcomma }}</div><div class="label">Factures en retard · {{ montant_retard|intcomma }} F</div></div>
+    </div>
+    <div class="stat">
+      <div class="icon"><i class="fa-solid fa-calendar-day"></i></div>
+      <div><div class="value">{{ nb_echeances|intcomma }}</div><div class="label">Échéances dans 7 jours</div></div>
+    </div>
+    <div class="stat">
+      <div class="icon"><i class="fa-solid fa-users"></i></div>
+      <div><div class="value">{{ nb_clients|intcomma }}</div><div class="label">Clients actifs</div></div>
+    </div>
+  </div>
+
+  <div class="deux-colonnes">
+    <div class="card">
+      <h2>Factures et paiements en {{ graphe.annee }}</h2>
+      <canvas id="graphe-comparatif" height="140" aria-label="Factures comparées aux paiements par mois" role="img"></canvas>
+      {{ graphe|json_script:"donnees-graphe" }}
+    </div>
+    <div class="card">
+      <h2>Dernières factures</h2>
+      <div class="table-wrap">
+        <table class="data">
+          <thead>
+            <tr><th>N° facture</th><th>Client</th><th>Date</th><th class="num">Montant</th><th class="num">Reste</th></tr>
+          </thead>
+          <tbody>
+            {% for f in dernieres_factures %}
+            <tr>
+              <td><a href="{% url 'couture:facture_detail' f.numero_facture %}">{{ f.numero_facture }}</a></td>
+              <td>{{ f.client.prenom_nom }}</td>
+              <td>{{ f.date_facture|date:"d/m/Y" }}</td>
+              <td class="num">{{ f.montant|intcomma }}</td>
+              <td class="num {% if f.reste > 0 %}badge-due{% else %}badge-ok{% endif %}">{{ f.reste|intcomma }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5">Aucune facture.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="deux-colonnes">
+    <div class="card">
+      <h2>Clients à relancer</h2>
+      <table class="data">
+        <thead><tr><th>Client</th><th>Téléphone</th><th class="num">Reste à payer</th><th></th></tr></thead>
+        <tbody>
+          {% for c in top_clients %}
+          <tr>
+            <td><a href="{% url 'couture:client_detail' c.client.pk %}">{{ c.client.prenom_nom }}</a></td>
+            <td>{{ c.client.telephone|default:"—" }}</td>
+            <td class="num badge-due">{{ c.reste|intcomma }}</td>
+            <td>
+              {% if c.lien %}
+                <a class="btn-wa" href="{{ c.lien }}" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i> Relancer</a>
+              {% else %}
+                <span class="badge-due">Numéro manquant</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="4">Aucun reste à payer.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <h2>Articles les plus vendus · {{ libelle_periode }}</h2>
+      <table class="data">
+        <thead><tr><th>Article</th><th class="num">Quantité</th><th class="num">Montant</th></tr></thead>
+        <tbody>
+          {% for a in top_articles %}
+          <tr><td>{{ a.article }}</td><td class="num">{{ a.qte }}</td><td class="num">{{ a.montant|intcomma }}</td></tr>
+          {% empty %}
+          <tr><td colspan="3">Aucune vente sur la période.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="actions">
+    <a class="btn btn-dash" href="{% url 'couture:client_creer' %}"><i class="fa-solid fa-plus"></i> Nouveau client</a>
+    <a class="btn btn-dash" href="{% url 'couture:facture_creer' %}"><i class="fa-solid fa-file-circle-plus"></i> Nouvelle facture</a>
+    <a class="btn btn-validate" href="{% url 'couture:facture_suivi' %}"><i class="fa-solid fa-list-check"></i> État de suivi</a>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+  (function () {
+    const donnees = JSON.parse(document.getElementById('donnees-graphe').textContent);
+    new Chart(document.getElementById('graphe-comparatif'), {
+      type: 'line',
+      data: {
+        labels: donnees.labels,
+        datasets: [
+          {
+            label: 'Facturé (F)',
+            data: donnees.facture,
+            borderColor: '#FFB22B',
+            backgroundColor: 'rgba(255,178,43,0.15)',
+            fill: false, tension: 0.3, pointRadius: 3,
+          },
+          {
+            label: 'Encaissé (F)',
+            data: donnees.paiements,
+            borderColor: '#00ACC1',
+            backgroundColor: 'rgba(0,172,193,0.15)',
+            fill: true, tension: 0.3, pointRadius: 3,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        interaction: { mode: 'index', intersect: false },
+        plugins: { legend: { position: 'bottom' } },
+        scales: { y: { beginAtZero: true, ticks: { callback: v => v.toLocaleString('fr-FR') } } },
+      },
+    });
+  })();
+</script>
+{% endblock %}

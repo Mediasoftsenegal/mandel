@@ -1,0 +1,85 @@
+{% extends "couture/base.html" %}
+{% load humanize %}
+{% block title %}{{ client.prenom_nom }}{% endblock %}
+{% block content %}
+  <h1 class="page-title">{{ client.prenom_nom|default:"Client" }}
+    {% if client.actif %}<span class="badge-ok" style="font-size:14px;">Actif</span>{% else %}<span class="badge-due" style="font-size:14px;">Désactivé</span>{% endif %}
+  </h1>
+  <div class="breadcrumb"><a href="{% url 'couture:client_liste' %}">Clients</a> · Fiche client</div>
+
+
+  <div class="actions">
+    <a class="btn btn-validate" href="{% url 'couture:client_modifier' client.pk %}"><i class="fa-solid fa-pen"></i> Modifier</a>
+    <a class="btn btn-dash" href="{% url 'couture:mesure_creer' client.pk %}"><i class="fa-solid fa-ruler"></i> Saisir les mesures</a>
+    <form method="post" action="{% url 'couture:client_basculer_etat' client.pk %}" style="display:inline;">
+      {% csrf_token %}
+      {% if client.actif %}
+        <button class="btn btn-dash" type="submit" style="background:#c62828;"><i class="fa-solid fa-user-slash"></i> Désactiver</button>
+      {% else %}
+        <button class="btn btn-validate" type="submit"><i class="fa-solid fa-user-check"></i> Réactiver</button>
+      {% endif %}
+    </form>
+    <a class="btn btn-dash" href="{% url 'couture:client_liste' %}">Retour à la liste</a>
+  </div>
+
+  <div class="card fiche-card">
+    <div class="fiche-entete"><span>Informations</span></div>
+    <table class="data">
+      <tbody>
+        <tr><th>Genre</th><td>{{ client.genre|default:"—" }}</td></tr>
+        <tr><th>Téléphone</th><td>{{ client.telephone|default:"—" }}</td></tr>
+        <tr><th>Adresse</th><td>{{ client.adresse|default:"—" }}</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card fiche-card">
+    <div class="fiche-entete"><span>Mesures</span></div>
+    <div class="table-wrap">
+      <table class="data">
+        <thead><tr><th>N°</th><th>Longueur</th><th>Épaule</th><th>Manche</th><th>Cou</th><th>Poitrine</th><th>Ceinture</th><th>Tour de fesses</th><th></th></tr></thead>
+        <tbody>
+          {% for m in mesures %}
+          <tr>
+            <td>#{{ m.id_mesure }}</td>
+            <td>{{ m.longueur|default:"—" }}</td>
+            <td>{{ m.epaule|default:"—" }}</td>
+            <td>{{ m.manche|default:"—" }}</td>
+            <td>{{ m.cou|default:"—" }}</td>
+            <td>{{ m.poitrine|default:"—" }}</td>
+            <td>{{ m.ceinture|default:"—" }}</td>
+            <td>{{ m.tourfess|default:"—" }}</td>
+            <td><a href="{% url 'couture:mesure_modifier' client.pk m.pk %}"><i class="fa-solid fa-pen"></i> Modifier</a></td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="9">Aucune mesure enregistrée.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card fiche-card">
+    <div class="fiche-entete"><span>Factures</span></div>
+    <div class="table-wrap">
+      <table class="data">
+        <thead><tr><th>N°</th><th>Date</th><th>Échéance</th><th class="num">Total</th><th class="num">Payé</th><th class="num">Reste</th><th>État</th></tr></thead>
+        <tbody>
+          {% for f in factures %}
+          <tr>
+            <td><a href="{% url 'couture:facture_detail' f.numero %}">{{ f.numero }}</a></td>
+            <td>{{ f.date|date:"d/m/Y" }}</td>
+            <td>{{ f.echeance|date:"d/m/Y" }}</td>
+            <td class="num">{{ f.total|intcomma }}</td>
+            <td class="num">{{ f.paye|intcomma }}</td>
+            <td class="num {% if f.reste > 0 %}badge-due{% else %}badge-ok{% endif %}">{{ f.reste|intcomma }}</td>
+            <td>{% if f.solde %}<span class="badge-ok">Soldée</span>{% else %}<span class="badge-due">Non soldée</span>{% endif %}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="7">Aucune facture.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}

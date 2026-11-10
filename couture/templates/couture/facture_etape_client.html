@@ -1,0 +1,58 @@
+{% extends "couture/base.html" %}
+{% block title %}Nouvelle facture · Client{% endblock %}
+{% block content %}
+  {% url 'couture:facture_creer' as bouton_url %}
+  {% include "couture/_entete.html" with titre="Nouvelle facture" fil="Accueil · Facturation · Nouvelle facture" %}
+  {% include "couture/_etapes.html" %}
+
+  {% if en_cours %}
+  <div class="card">
+    <span class="aide">Une facture est déjà en cours pour un autre client. Choisir un nouveau client la remplacera.</span>
+    <form method="post" action="{% url 'couture:facture_annuler' %}" style="display:inline;">
+      {% csrf_token %}
+      <button class="btn-secondaire" type="submit"><i class="fa-solid fa-trash-can"></i> Annuler la facture en cours</button>
+    </form>
+  </div>
+  {% endif %}
+
+  <form method="get" class="card">
+    <div class="filtres-4">
+      <label>Prénom et nom ou téléphone
+        <input type="search" name="q" value="{{ q }}" placeholder="Ex. Aminata ou 77">
+      </label>
+      <div></div>
+      <div></div>
+      <div class="filtre-actions">
+        <button class="btn-primaire" type="submit"><i class="fa-solid fa-magnifying-glass"></i> Filtrer</button>
+        <a class="btn-secondaire" href="{% url 'couture:facture_creer' %}"><i class="fa-solid fa-rotate-left"></i> Réinitialiser</a>
+      </div>
+    </div>
+  </form>
+
+  <div class="card">
+    <div class="table-wrap">
+      <table class="data">
+        <thead><tr><th>Prénom et nom</th><th>Téléphone</th><th>Genre</th><th></th></tr></thead>
+        <tbody>
+          {% for c in page_obj %}
+          <tr>
+            <td>{{ c.prenom_nom|default:"—" }}</td>
+            <td>{{ c.telephone|default:"—" }}</td>
+            <td>{{ c.genre|default:"—" }}</td>
+            <td>
+              <form method="post" action="{% url 'couture:facture_creer' %}" style="margin:0;">
+                {% csrf_token %}
+                <input type="hidden" name="client" value="{{ c.pk }}">
+                <button class="btn-primaire" type="submit"><i class="fa-solid fa-user-check"></i> Choisir</button>
+              </form>
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="4">Aucun client actif trouvé.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% include "couture/_pagination.html" %}
+  </div>
+{% endblock %}

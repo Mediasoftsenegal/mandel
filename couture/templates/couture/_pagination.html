@@ -1,0 +1,24 @@
+{% if page_obj.paginator.count %}
+<nav class="pagination" aria-label="Pages">
+  <span class="pagination-info">
+    {{ page_obj.start_index }} à {{ page_obj.end_index }} sur {{ page_obj.paginator.count }} · {{ page_obj.paginator.per_page }} par page
+  </span>
+  {% if page_obj.paginator.num_pages > 1 %}
+  <div class="pagination-pages">
+    {% if page_obj.has_previous %}
+      <a class="page-lien" href="?{% for k, v in filtres.items %}{{ k }}={{ v|urlencode }}&{% endfor %}page={{ page_obj.previous_page_number }}" aria-label="Page précédente">‹</a>
+    {% endif %}
+    {% for n in page_obj.paginator.page_range %}
+      {% if n == page_obj.number %}
+        <span class="page-active" aria-current="page">{{ n }}</span>
+      {% else %}
+        <a class="page-lien" href="?{% for k, v in filtres.items %}{{ k }}={{ v|urlencode }}&{% endfor %}page={{ n }}">{{ n }}</a>
+      {% endif %}
+    {% endfor %}
+    {% if page_obj.has_next %}
+      <a class="page-lien" href="?{% for k, v in filtres.items %}{{ k }}={{ v|urlencode }}&{% endfor %}page={{ page_obj.next_page_number }}" aria-label="Page suivante">›</a>
+    {% endif %}
+  </div>
+  {% endif %}
+</nav>
+{% endif %}

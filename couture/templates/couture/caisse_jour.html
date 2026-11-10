@@ -1,0 +1,50 @@
+{% extends "couture/base.html" %}
+{% load humanize %}
+{% block title %}Caisse du jour{% endblock %}
+{% block content %}
+  {% include "couture/_entete.html" with titre="Caisse du jour" fil="Accueil · Caisse · Caisse du jour" %}
+
+  <form method="get" class="card">
+    <div class="filtres-4">
+      <label>Date
+        <input type="date" name="jour" value="{{ jour|date:'Y-m-d' }}">
+      </label>
+      <div></div>
+      <div></div>
+      <div class="filtre-actions">
+        <button class="btn-primaire" type="submit"><i class="fa-solid fa-calendar-day"></i> Afficher</button>
+      </div>
+    </div>
+  </form>
+
+  <div class="stats">
+    <div class="stat"><div class="icon"><i class="fa-solid fa-sack-dollar"></i></div>
+      <div><div class="value">{{ total_facture|intcomma }} F</div><div class="label">Facturé le {{ jour|date:"d/m/Y" }}</div></div></div>
+    <div class="stat"><div class="icon alt"><i class="fa-solid fa-circle-check"></i></div>
+      <div><div class="value">{{ total_paye|intcomma }} F</div><div class="label">Encaissé le {{ jour|date:"d/m/Y" }}</div></div></div>
+  </div>
+
+  <div class="card">
+    <div class="table-wrap">
+      <table class="data">
+        <thead><tr><th>N° facture</th><th>Client</th><th>Heure</th><th class="num">Montant</th><th class="num">Encaissement</th></tr></thead>
+        <tbody>
+          {% for f in lignes %}
+          <tr>
+            <td><a class="lien-table" href="{% url 'couture:facture_detail' f.numero_facture %}">{{ f.numero_facture }}</a></td>
+            <td>{% if f.client %}{{ f.client.prenom_nom }}{% else %}—{% endif %}</td>
+            <td>{{ f.heure_facture|time:"H:i" }}</td>
+            <td class="num">{{ f.montant|intcomma }}</td>
+            <td class="num">{{ f.montpaye|intcomma }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="5">Aucune facture à cette date.</td></tr>
+          {% endfor %}
+        </tbody>
+        {% if lignes %}
+        <tfoot><tr><th colspan="3">Total</th><th class="num">{{ total_facture|intcomma }}</th><th class="num">{{ total_paye|intcomma }}</th></tr></tfoot>
+        {% endif %}
+      </table>
+    </div>
+  </div>
+{% endblock %}

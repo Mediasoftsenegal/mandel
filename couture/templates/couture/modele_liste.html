@@ -1,0 +1,53 @@
+{% extends "couture/base.html" %}
+{% block title %}Modèles{% endblock %}
+{% block content %}
+  {% url 'couture:modele_creer' as bouton_url %}
+  {% include "couture/_entete.html" with titre="Modèles" fil="Accueil · Modèles" bouton_url=bouton_url bouton_libelle="Nouveau modèle" %}
+
+  <form method="get" class="card">
+    <div class="filtres-4">
+      <label>Libellé du modèle
+        <input type="search" name="libelle" value="{{ libelle }}" placeholder="Ex. boubou">
+      </label>
+      <label>Trier par
+        <select name="tri">
+          <option value="" {% if tri == '' %}selected{% endif %}>Libellé</option>
+          <option value="score" {% if tri == 'score' %}selected{% endif %}>Score (choix des clients)</option>
+        </select>
+      </label>
+      <div class="aide" style="align-self:center;">Modèles avec photos : {{ nb_galeries }} / {{ max_galeries }}</div>
+      <div class="filtre-actions">
+        <button class="btn-primaire" type="submit"><i class="fa-solid fa-magnifying-glass"></i> Filtrer</button>
+        <a class="btn-secondaire" href="{% url 'couture:modele_liste' %}"><i class="fa-solid fa-rotate-left"></i> Réinitialiser</a>
+      </div>
+    </div>
+  </form>
+
+  <div class="actions">
+    <a class="btn-secondaire" href="{% url 'couture:photos_evaluation' %}"><i class="fa-solid fa-ranking-star"></i> Évaluation des photos</a>
+  </div>
+
+  <div class="card">
+    <div class="table-wrap">
+      <table class="data">
+        <thead>
+          <tr><th>#</th><th>Photo</th><th>Libellé</th><th>Photos</th><th class="num">Score</th></tr>
+        </thead>
+        <tbody>
+          {% for ligne in page_obj %}
+          <tr>
+            <td>{{ ligne.modele.codemod }}</td>
+            <td>{% if ligne.vedette %}<img src="{{ ligne.vedette.image.url }}" alt="" style="width:56px;height:56px;object-fit:cover;border-radius:6px;">{% else %}<span class="aide">—</span>{% endif %}</td>
+            <td><a class="lien-table" href="{% url 'couture:modele_modifier' ligne.modele.pk %}">{{ ligne.modele.libmod }}</a></td>
+            <td><a href="{% url 'couture:modele_galerie' ligne.modele.pk %}">{{ ligne.nb_photos }} / {{ par_galerie }}</a></td>
+            <td class="num"><strong>{{ ligne.score }}</strong></td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="5">Aucun modèle.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% include "couture/_pagination.html" %}
+  </div>
+{% endblock %}

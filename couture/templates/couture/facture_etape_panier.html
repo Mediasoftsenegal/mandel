@@ -1,0 +1,58 @@
+{% extends "couture/base.html" %}
+{% load humanize %}
+{% block title %}Nouvelle facture · Panier{% endblock %}
+{% block content %}
+  {% include "couture/_entete.html" with titre="Panier" fil="Accueil · Facturation · Nouvelle facture · Panier" %}
+  {% include "couture/_etapes.html" %}
+
+  <div class="card">
+    <strong>Client :</strong> {{ client.prenom_nom }} · {{ client.telephone|default:"" }}
+  </div>
+
+  <form method="post" action="{% url 'couture:facture_panier' %}">
+    {% csrf_token %}
+    <div class="fiche">
+      <div class="fiche-entete"><span>Articles sélectionnés</span><span class="aide">Modifiez la quantité puis « Mettre à jour »</span></div>
+      <div class="fiche-corps" style="padding:0;">
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>Désignation</th><th class="num">Prix unitaire</th><th class="num">Quantité</th><th class="num">Prix total</th><th></th></tr></thead>
+            <tbody>
+              {% for l in lignes %}
+              <tr>
+                <td>{{ l.produit.des }}</td>
+                <td class="num">{{ l.produit.pu|intcomma }}</td>
+                <td class="num"><input type="number" min="0" name="qte_{{ l.produit.pk }}" value="{{ l.qte }}" style="width:90px;padding:6px;border:1px solid #cfd8dc;border-radius:6px;"></td>
+                <td class="num">{{ l.total|intcomma }}</td>
+                <td><a href="#" onclick="event.preventDefault(); document.getElementById('suppr-{{ l.produit.pk }}').submit();" title="Supprimer"><i class="fa-solid fa-trash"></i></a></td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="5">Le panier est vide.</td></tr>
+              {% endfor %}
+              {% if lignes %}
+              <tr><th colspan="2">Total</th><th class="num">{{ nb_articles }}</th><th class="num">{{ total|intcomma }}</th><th></th></tr>
+              {% endif %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="fiche-pied">
+        <button class="btn-secondaire" type="submit"><i class="fa-solid fa-rotate"></i> Mettre à jour</button>
+        <a class="btn-secondaire" href="{% url 'couture:facture_articles' %}"><i class="fa-solid fa-plus"></i> Poursuivre la sélection</a>
+        {% if lignes %}
+        <a class="btn-primaire" href="{% url 'couture:facture_confirmation' %}"><i class="fa-solid fa-check"></i> Valider le panier</a>
+        {% endif %}
+        <form method="post" action="{% url 'couture:facture_annuler' %}" style="display:inline; margin-left:auto;">
+          {% csrf_token %}
+          <button class="btn-secondaire" type="submit"><i class="fa-solid fa-trash-can"></i> Annuler la facture</button>
+        </form>
+      </div>
+    </div>
+  </form>
+
+  {% for l in lignes %}
+  <form id="suppr-{{ l.produit.pk }}" method="post" action="{% url 'couture:facture_supprimer_ligne' l.produit.pk %}" style="display:none;">
+    {% csrf_token %}
+  </form>
+  {% endfor %}
+{% endblock %}

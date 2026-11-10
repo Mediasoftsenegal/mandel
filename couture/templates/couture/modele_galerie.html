@@ -1,0 +1,47 @@
+{% extends "couture/base.html" %}
+{% load static %}
+{% block title %}Photos · {{ modele.libmod }}{% endblock %}
+{% block content %}
+  {% url 'couture:modele_modifier' modele.pk as retour %}
+  {% include "couture/_entete.html" with titre="Photos du modèle" fil="Accueil · Modèles · Photos" %}
+
+  <div class="card">
+    <strong>{{ modele.libmod }}</strong>
+    <span class="aide"> — {{ par_galerie }} photos exactement, ou aucune. Modèles avec photos : {{ nb_galeries }} / {{ max_galeries }}.</span>
+  </div>
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="fiche">
+      <div class="fiche-entete"><span>Photos</span><span class="aide">Vote : chaque clic ajoute +1 au score de la photo</span></div>
+      <div class="fiche-corps">
+        <div class="galerie">
+          {% for e in emplacements %}
+          <div class="emplacement">
+            <div class="emplacement-titre">Photo {{ e.position }}</div>
+            {% if e.photo %}
+              <a href="{{ e.photo.image.url }}" class="apercu-photo" data-titre="Photo {{ e.position }}" title="Agrandir"><img src="{{ e.photo.image.url }}" alt="Photo {{ e.position }}"></a>
+              <div class="score-photo">Score : <strong>{{ e.photo.score }}</strong></div>
+              <button class="btn-wa" type="submit" formaction="{% url 'couture:photo_voter' e.photo.pk %}" formnovalidate><i class="fa-solid fa-thumbs-up"></i> Voter</button>
+              <label class="aide"><input type="checkbox" name="supprimer_{{ e.position }}"> Supprimer</label>
+              <label class="aide">Remplacer : <input type="file" name="photo_{{ e.position }}" accept="image/*"></label>
+            {% else %}
+              <div class="vide">Aucune photo</div>
+              <label class="aide">Ajouter : <input type="file" name="photo_{{ e.position }}" accept="image/*"></label>
+            {% endif %}
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="fiche-pied">
+        <button class="btn-primaire" type="submit"><i class="fa-solid fa-floppy-disk"></i> Enregistrer les photos</button>
+        <a class="btn-secondaire" href="{{ retour }}"><i class="fa-solid fa-xmark"></i> Retour au modèle</a>
+        <a class="btn-secondaire" href="{% url 'couture:photos_evaluation' %}"><i class="fa-solid fa-ranking-star"></i> Évaluation des photos</a>
+      </div>
+    </div>
+  </form>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/apercu_photo.js' %}"></script>
+{% endblock %}

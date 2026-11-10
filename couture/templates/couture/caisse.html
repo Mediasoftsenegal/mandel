@@ -1,0 +1,46 @@
+{% extends "couture/base.html" %}
+{% load humanize %}
+{% block title %}Acomptes{% endblock %}
+{% block content %}
+  {% include "couture/_entete.html" with titre="Acomptes" fil="Accueil · Facturation · Acomptes (factures non soldées)" %}
+
+  <form method="get" class="card">
+    <div class="filtres-4">
+      <label>N° facture ou client
+        <input type="search" name="q" value="{{ recherche }}" placeholder="Ex. 105 ou Aminata">
+      </label>
+      <div></div>
+      <div></div>
+      <div class="filtre-actions">
+        <button class="btn-primaire" type="submit"><i class="fa-solid fa-magnifying-glass"></i> Filtrer</button>
+        <a class="btn-secondaire" href="{% url 'couture:caisse' %}"><i class="fa-solid fa-rotate-left"></i> Réinitialiser</a>
+      </div>
+    </div>
+  </form>
+
+  <div class="card">
+    <div class="table-wrap">
+      <table class="data">
+        <thead>
+          <tr><th>N° facture</th><th>Client</th><th>Échéance</th><th class="num">Total</th><th class="num">Payé</th><th class="num">Reste</th><th></th></tr>
+        </thead>
+        <tbody>
+          {% for f in page_obj %}
+          <tr>
+            <td><a class="lien-table" href="{% url 'couture:facture_detail' f.numero %}">{{ f.numero }}</a></td>
+            <td>{% if f.client %}<a class="lien-table" href="{% url 'couture:client_detail' f.client.pk %}">{{ f.client.prenom_nom }}</a>{% else %}—{% endif %}</td>
+            <td>{{ f.echeance|date:"d/m/Y" }}</td>
+            <td class="num">{{ f.total|intcomma }}</td>
+            <td class="num">{{ f.paye|intcomma }}</td>
+            <td class="num badge-due">{{ f.reste|intcomma }}</td>
+            <td><a class="btn-primaire" href="{% url 'couture:facture_encaisser' f.numero %}"><i class="fa-solid fa-coins"></i> Encaisser</a></td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="7">Aucune facture non soldée.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% include "couture/_pagination.html" %}
+  </div>
+{% endblock %}

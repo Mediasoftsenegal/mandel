@@ -1,0 +1,75 @@
+{% extends "couture/base.html" %}
+{% load humanize static %}
+{% block title %}Facture {{ numero }}{% endblock %}
+{% block content %}
+  <h1 class="page-title">Facture n° {{ numero }}
+    {% if solde %}<span class="badge-ok" style="font-size:14px;">Soldée</span>{% else %}<span class="badge-due" style="font-size:14px;">Non soldée</span>{% endif %}
+  </h1>
+  <div class="breadcrumb"><a href="{% url 'couture:facture_liste' %}">Factures</a> · Facture {{ numero }}</div>
+
+
+  <div class="actions">
+    {% if not solde %}
+    <a class="btn btn-validate" href="{% url 'couture:facture_encaisser' numero %}"><i class="fa-solid fa-coins"></i> Encaisser</a>
+    {% endif %}
+    <a class="btn btn-dash" href="{% url 'couture:facture_imprimer' numero %}?impression=1" target="_blank"><i class="fa-solid fa-file-pdf"></i> Imprimer (PDF)</a>
+    <button type="button" class="btn-wa" id="envoyer-whatsapp"><i class="fa-brands fa-whatsapp"></i> Envoyer par WhatsApp</button>
+    {{ whatsapp_donnees|json_script:"donnees-whatsapp" }}
+    {% if client %}<a class="btn btn-dash" href="{% url 'couture:client_detail' client.pk %}">Fiche client</a>{% endif %}
+    <a class="btn btn-dash" href="{% url 'couture:facture_liste' %}">Retour à la liste</a>
+  </div>
+
+  <div class="card fiche-card">
+    <div class="fiche-entete"><span>Client</span></div>
+    <table class="data">
+      <tbody>
+        <tr><th>Nom</th><td>{{ client.prenom_nom|default:"—" }}</td></tr>
+        <tr><th>Téléphone</th><td>{{ client.telephone|default:"—" }}</td></tr>
+        <tr><th>Date d’échéance</th><td>{{ echeance|date:"d/m/Y"|default:"—" }}</td></tr>
+        <tr><th>Total</th><td>{{ total|intcomma }}</td></tr>
+        <tr><th>Payé</th><td>{{ paye|intcomma }}</td></tr>
+        <tr><th>Reste à payer</th><td class="{% if reste > 0 %}badge-due{% else %}badge-ok{% endif %}">{{ reste|intcomma }}</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card fiche-card">
+    <div class="fiche-entete"><span>Articles</span></div>
+    <div class="table-wrap">
+      <table class="data">
+        <thead><tr><th>Article</th><th class="num">Prix unitaire</th><th class="num">Quantité</th><th class="num">Total</th></tr></thead>
+        <tbody>
+          {% for l in lignes %}
+          <tr><td>{{ l.article }}</td><td class="num">{{ l.prix|intcomma }}</td><td class="num">{{ l.qte }}</td><td class="num">{{ l.total|intcomma }}</td></tr>
+          {% empty %}
+          <tr><td colspan="4">Aucun article enregistré.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+    <div class="card fiche-card">
+    <div class="fiche-entete"><span>Acomptes et paiements</span></div>
+    <div class="table-wrap">
+      <table class="data">
+        <thead><tr><th>N°</th><th>Date</th><th>Heure</th><th class="num">Montant facturé</th><th class="num">Versé</th></tr></thead>
+        <tbody>
+          {% for t in tranches %}
+          <tr>
+            <td>{{ t.pk }}</td>
+            <td>{{ t.date_facture|date:"d/m/Y" }}</td>
+            <td>{{ t.heure_facture|time:"H:i" }}</td>
+            <td class="num">{{ t.montant|intcomma }}</td>
+            <td class="num">{{ t.montpaye|intcomma }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/facture_whatsapp.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,9 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">{{ titre }}</h1>
+    <div class="fil-ariane">{{ fil }}</div>
+  </div>
+  {% if bouton_url %}
+    <a class="btn-primaire bouton-haut" href="{{ bouton_url }}"><i class="fa-solid {{ bouton_icone|default:'fa-plus' }}"></i> {{ bouton_libelle }}</a>
+  {% endif %}
+</div>

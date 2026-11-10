@@ -1,0 +1,53 @@
+{% extends "couture/base.html" %}
+{% block title %}Clients{% endblock %}
+{% block content %}
+  {% url 'couture:client_creer' as bouton_url %}
+  {% include "couture/_entete.html" with titre="Clients" fil="Accueil · Clients" bouton_url=bouton_url bouton_libelle="Nouveau client" %}
+
+  <form method="get" class="card">
+    <div class="filtres-4">
+      <label>Prénom et nom
+        <input type="search" name="nom" value="{{ nom }}" placeholder="Ex. Aminata">
+      </label>
+      <label>Téléphone
+        <input type="search" name="telephone" value="{{ telephone }}" placeholder="Ex. 77">
+      </label>
+      <label>État
+        <select name="etat">
+          <option value="" {% if etat == '' %}selected{% endif %}>Tous</option>
+          <option value="1" {% if etat == '1' %}selected{% endif %}>Actifs</option>
+          <option value="0" {% if etat == '0' %}selected{% endif %}>Désactivés</option>
+        </select>
+      </label>
+      <div class="filtre-actions">
+        <button class="btn-primaire" type="submit"><i class="fa-solid fa-magnifying-glass"></i> Filtrer</button>
+        <a class="btn-secondaire" href="{% url 'couture:client_liste' %}"><i class="fa-solid fa-rotate-left"></i> Réinitialiser</a>
+      </div>
+    </div>
+  </form>
+
+  <div class="card">
+    <div class="table-wrap">
+      <table class="data">
+        <thead>
+          <tr><th>#</th><th>Prénom et nom</th><th>Genre</th><th>Téléphone</th><th>Adresse</th><th>État</th></tr>
+        </thead>
+        <tbody>
+          {% for c in page_obj %}
+          <tr>
+            <td>{{ c.id_client }}</td>
+            <td><a class="lien-table" href="{% url 'couture:client_detail' c.pk %}">{{ c.prenom_nom|default:"—" }}</a></td>
+            <td>{{ c.genre|default:"—" }}</td>
+            <td>{{ c.telephone|default:"—" }}</td>
+            <td>{{ c.adresse|default:"—" }}</td>
+            <td>{% if c.actif %}<span class="badge-ok">Actif</span>{% else %}<span class="badge-due">Désactivé</span>{% endif %}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="6">Aucun client trouvé.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% include "couture/_pagination.html" %}
+  </div>
+{% endblock %}

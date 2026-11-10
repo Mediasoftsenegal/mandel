@@ -1,0 +1,60 @@
+{% extends "couture/base.html" %}
+{% load humanize %}
+{% block title %}Nouvelle facture · Confirmation{% endblock %}
+{% block content %}
+  {% include "couture/_entete.html" with titre="Confirmation de la facture" fil="Accueil · Facturation · Nouvelle facture · Confirmation" %}
+  {% include "couture/_etapes.html" %}
+
+  <div class="fiche">
+    <div class="fiche-entete"><span>1. Client</span></div>
+    <div class="fiche-corps">
+      <div class="champ-ligne"><div class="libelle">Prénom et nom</div><div class="lecture">{{ client.prenom_nom }}</div></div>
+      <div class="champ-ligne"><div class="libelle">Téléphone</div><div class="lecture">{{ client.telephone|default:"—" }}</div></div>
+      <div class="champ-ligne"><div class="libelle">Genre</div><div class="lecture">{{ client.genre|default:"—" }}</div></div>
+    </div>
+  </div>
+
+  <div class="fiche">
+    <div class="fiche-entete"><span>2. Articles</span></div>
+    <div class="fiche-corps" style="padding:0;">
+      <div class="table-wrap">
+        <table class="data">
+          <thead><tr><th>Désignation</th><th class="num">Prix unitaire</th><th class="num">Quantité</th><th class="num">Prix total</th></tr></thead>
+          <tbody>
+            {% for l in lignes %}
+            <tr><td>{{ l.produit.des }}</td><td class="num">{{ l.produit.pu|intcomma }}</td><td class="num">{{ l.qte }}</td><td class="num">{{ l.total|intcomma }}</td></tr>
+            {% endfor %}
+            <tr><th colspan="3">Total à payer</th><th class="num">{{ total|intcomma }} F</th></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  {% if mesures %}
+  <div class="fiche">
+    <div class="fiche-entete"><span>3. Mesures du client (contrôle)</span></div>
+    <div class="fiche-corps">
+      <div class="mesures-grille">
+        {% for libelle, valeur in mesures %}
+          <div class="lecture"><span class="aide">{{ libelle }}</span><br><strong>{{ valeur }}</strong></div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <form method="post" action="{% url 'couture:facture_confirmation' %}">
+    {% csrf_token %}
+    <div class="fiche">
+      <div class="fiche-entete"><span>4. Facture</span></div>
+      <div class="fiche-corps">
+        {% include "couture/_champs.html" %}
+      </div>
+      <div class="fiche-pied">
+        <button class="btn-primaire" type="submit"><i class="fa-solid fa-check"></i> Enregistrer la facture</button>
+        <a class="btn-secondaire" href="{% url 'couture:facture_panier' %}"><i class="fa-solid fa-arrow-left"></i> Retour au panier</a>
+      </div>
+    </div>
+  </form>
+{% endblock %}

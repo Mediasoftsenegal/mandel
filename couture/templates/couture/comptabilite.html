@@ -1,0 +1,24 @@
+{% extends "couture/base.html" %}
+{% load humanize %}
+{% block title %}Comptabilité{% endblock %}
+{% block content %}
+  <h1 class="page-title">Comptabilité</h1>
+  <div class="breadcrumb">Accueil · Comptabilité · synthèse</div>
+
+  <div class="stats">
+    <div class="stat"><div class="icon"><i class="fa-solid fa-file-invoice"></i></div>
+      <div><div class="value">{{ nb_factures|intcomma }}</div><div class="label">Factures</div></div></div>
+    <div class="stat"><div class="icon"><i class="fa-solid fa-hourglass-half"></i></div>
+      <div><div class="value">{{ nb_impayees|intcomma }}</div><div class="label">Non soldées</div></div></div>
+    <div class="stat"><div class="icon alt"><i class="fa-solid fa-sack-dollar"></i></div>
+      <div><div class="value">{{ total_facture|intcomma }} F</div><div class="label">Total facturé</div></div></div>
+    <div class="stat"><div class="icon alt"><i class="fa-solid fa-circle-check"></i></div>
+      <div><div class="value">{{ total_paye|intcomma }} F</div><div class="label">Encaissé</div></div></div>
+    <div class="stat"><div class="icon"><i class="fa-solid fa-scale-balanced"></i></div>
+      <div><div class="value">{{ reste_a_payer|intcomma }} F</div><div class="label">Reste à encaisser</div></div></div>
+  </div>
+
+  <div class="actions">
+    <a class="btn btn-dash" href="{% url 'couture:facture_liste' %}"><i class="fa-solid fa-list"></i> Voir les factures</a>
+  </div>
+{% endblock %}

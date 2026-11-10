@@ -1,0 +1,53 @@
+{% extends "couture/base.html" %}
+{% block title %}Mesures{% endblock %}
+{% block content %}
+  {% include "couture/_entete.html" with titre="Mesures" fil="Accueil · Mesures" %}
+
+  <form method="get" class="card">
+    <div class="filtres-4">
+      <label>Nom du client
+        <input type="search" name="nom" value="{{ nom }}" placeholder="Ex. Aminata">
+      </label>
+      <label>Genre
+        <select name="genre">
+          <option value="" {% if genre == '' %}selected{% endif %}>Tous</option>
+          <option value="Homme" {% if genre == 'Homme' %}selected{% endif %}>Homme</option>
+          <option value="Femme" {% if genre == 'Femme' %}selected{% endif %}>Femme</option>
+        </select>
+      </label>
+      <div></div>
+      <div class="filtre-actions">
+        <button class="btn-primaire" type="submit"><i class="fa-solid fa-magnifying-glass"></i> Filtrer</button>
+        <a class="btn-secondaire" href="{% url 'couture:mesure_liste' %}"><i class="fa-solid fa-rotate-left"></i> Réinitialiser</a>
+      </div>
+    </div>
+  </form>
+
+  <div class="card">
+    <div class="table-wrap">
+      <table class="data">
+        <thead>
+          <tr><th>N°</th><th>Client</th><th>Genre</th><th>Téléphone</th><th>Longueur</th><th>Épaule</th><th>Manche</th><th>Poitrine</th><th></th></tr>
+        </thead>
+        <tbody>
+          {% for m in page_obj %}
+          <tr>
+            <td>#{{ m.pk }}</td>
+            <td><a class="lien-table" href="{% url 'couture:client_detail' m.client_id %}">{{ m.client.prenom_nom|default:"—" }}</a></td>
+            <td>{{ m.genre|default:"—" }}</td>
+            <td>{{ m.telephone|default:"—" }}</td>
+            <td>{{ m.longueur|default:"—" }}</td>
+            <td>{{ m.epaule|default:"—" }}</td>
+            <td>{{ m.manche|default:"—" }}</td>
+            <td>{{ m.poitrine|default:"—" }}</td>
+            <td><a href="{% url 'couture:mesure_modifier' m.client_id m.pk %}"><i class="fa-solid fa-pen"></i> Modifier</a></td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="9">Aucune mesure trouvée.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% include "couture/_pagination.html" %}
+  </div>
+{% endblock %}

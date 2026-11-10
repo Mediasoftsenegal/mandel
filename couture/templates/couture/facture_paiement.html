@@ -1,0 +1,31 @@
+{% extends "couture/base.html" %}
+{% load humanize %}
+{% block title %}Encaisser — facture {{ numero }}{% endblock %}
+{% block content %}
+  {% url 'couture:facture_detail' numero as retour %}
+  {% include "couture/_entete.html" with titre="Encaisser un acompte" fil="Accueil · Facturation · Encaissement" %}
+
+  <div class="fiche">
+    <div class="fiche-entete"><span>1. Situation de la facture n° {{ numero }}</span></div>
+    <div class="fiche-corps">
+      <div class="champ-ligne"><div class="libelle">Client</div><div class="lecture">{{ groupe.client.prenom_nom|default:"—" }}</div></div>
+      <div class="champ-ligne"><div class="libelle">Total</div><div class="lecture">{{ groupe.total|intcomma }} F</div></div>
+      <div class="champ-ligne"><div class="libelle">Déjà payé</div><div class="lecture">{{ groupe.paye|intcomma }} F</div></div>
+      <div class="champ-ligne"><div class="libelle">Reste à payer</div><div class="lecture badge-due">{{ groupe.reste|intcomma }} F</div></div>
+    </div>
+  </div>
+
+  <form method="post">
+    {% csrf_token %}
+    <div class="fiche">
+      <div class="fiche-entete"><span>2. Encaissement</span></div>
+      <div class="fiche-corps">
+        {% include "couture/_champs.html" %}
+      </div>
+      <div class="fiche-pied">
+        <button class="btn-primaire" type="submit"><i class="fa-solid fa-check"></i> Enregistrer le paiement</button>
+        <a class="btn-secondaire" href="{{ retour }}"><i class="fa-solid fa-xmark"></i> Annuler</a>
+      </div>
+    </div>
+  </form>
+{% endblock %}
