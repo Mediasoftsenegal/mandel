@@ -43,6 +43,9 @@
           {% ifchanged f.annee %}
           <tr class="groupe-annee"><th colspan="7"><i class="fa-regular fa-calendar"></i> Année {{ f.annee }}</th></tr>
           {% endifchanged %}
+          {% ifchanged f.cle_mois %}
+          <tr class="groupe-mois"><th colspan="7"><i class="fa-regular fa-calendar-days"></i> {{ f.mois }}</th></tr>
+          {% endifchanged %}
           <tr>
             <td>{{ f.echeance|date:"d/m/Y" }}{% if f.en_retard %} <span class="badge-due">en retard</span>{% endif %}</td>
             <td><a class="lien-table" href="{% url 'couture:facture_detail' f.numero %}">{{ f.numero }}</a></td>
