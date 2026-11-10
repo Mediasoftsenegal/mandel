@@ -690,15 +690,26 @@ def mesure_liste(request):
 def facture_suivi(request):
     """État de suivi : toutes les factures, classées par échéance, en retard en évidence."""
     etat = request.GET.get('etat', '')
-    groupes = _groupes_factures(_societe(), etat=etat)
     aujourdhui = date.today()
+    groupes = _groupes_factures(_societe(), etat=etat)
     for g in groupes:
         g['en_retard'] = (not g['solde']) and g['echeance'] is not None and g['echeance'] < aujourdhui
-    groupes.sort(key=lambda g: (g['echeance'] is None, g['echeance'] or date.max, g['numero']))
+        g['annee'] = (g['echeance'] or g['date'] or aujourdhui).year
+    annees = sorted({g['annee'] for g in groupes}, reverse=True)
+    # Par défaut : année en cours ; « toutes » affiche toutes les années groupées.
+    annee = request.GET.get('annee', str(aujourdhui.year))
+    if annee != 'toutes':
+        try:
+            annee = int(annee)
+        except ValueError:
+            annee = aujourdhui.year
+        groupes = [g for g in groupes if g['annee'] == annee]
+    groupes.sort(key=lambda g: (-g['annee'], g['echeance'] is None, g['echeance'] or date.max, g['numero']))
     return render(request, 'couture/facture_suivi.html', {
         'page_obj': Paginator(groupes, PAR_PAGE).get_page(request.GET.get('page')),
-        'filtres': _filtres_get(request, 'etat'),
-        'etat': etat, 'page': 'factures_suivi',
+        'filtres': _filtres_get(request, 'etat', 'annee'),
+        'etat': etat, 'annee': annee, 'annees': annees, 'annee_courante': aujourdhui.year,
+        'page': 'factures_suivi',
     })
 
 

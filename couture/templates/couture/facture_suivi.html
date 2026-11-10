@@ -6,6 +6,17 @@
 
   <form method="get" class="card">
     <div class="filtres-4">
+      <label>Année
+        <select name="annee">
+          {% for a in annees %}
+          <option value="{{ a }}" {% if annee == a %}selected{% endif %}>{{ a }}{% if a == annee_courante %} (en cours){% endif %}</option>
+          {% endfor %}
+          {% if annee_courante not in annees %}
+          <option value="{{ annee_courante }}" {% if annee == annee_courante %}selected{% endif %}>{{ annee_courante }} (en cours)</option>
+          {% endif %}
+          <option value="toutes" {% if annee == 'toutes' %}selected{% endif %}>Toutes les années</option>
+        </select>
+      </label>
       <label>État
         <select name="etat">
           <option value="" {% if etat == '' %}selected{% endif %}>Toutes</option>
@@ -13,7 +24,6 @@
           <option value="soldees" {% if etat == 'soldees' %}selected{% endif %}>Soldées</option>
         </select>
       </label>
-      <div></div>
       <div></div>
       <div class="filtre-actions">
         <button class="btn-primaire" type="submit"><i class="fa-solid fa-magnifying-glass"></i> Filtrer</button>
@@ -30,6 +40,9 @@
         </thead>
         <tbody>
           {% for f in page_obj %}
+          {% ifchanged f.annee %}
+          <tr class="groupe-annee"><th colspan="7"><i class="fa-regular fa-calendar"></i> Année {{ f.annee }}</th></tr>
+          {% endifchanged %}
           <tr>
             <td>{{ f.echeance|date:"d/m/Y" }}{% if f.en_retard %} <span class="badge-due">en retard</span>{% endif %}</td>
             <td><a class="lien-table" href="{% url 'couture:facture_detail' f.numero %}">{{ f.numero }}</a></td>
